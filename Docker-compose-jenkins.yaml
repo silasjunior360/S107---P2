@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  jenkins:
+    build: ./jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    networks:
+      - minha-rede
+
+  app:
+    build: ./app
+    networks:
+      - minha-rede
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+    networks:
+      - minha-rede
+    volumes:
+      - redis_data:/data
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    networks:
+      - minha-rede
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: crocodilos
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    networks:
+      - minha-rede
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  jenkins_data:
+  redis_data:
+  postgres_data:
+
+networks:
+  minha-rede:
+    driver: bridge
