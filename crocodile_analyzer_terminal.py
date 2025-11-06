@@ -321,7 +321,7 @@ class CrocodileAnalyzer:
 def show_menu():
     """Exibe o menu principal."""
     print("\n" + "=" * 80)
-    print("🐊 ANÁLISE INTERATIVA DO DATASET DE CROCODILOS 🐊")
+    print("🐊 ANÁLISE INTERATIVA DO DATASET DE CROCODILOS TESTE PIPELINE JENKINS 🐊")
     print("=" * 80)
     print("Escolha uma das 20 opções de análise:")
     print()

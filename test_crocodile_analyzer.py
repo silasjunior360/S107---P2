@@ -5,7 +5,7 @@ import pandas as pd
 import os
 import sys
 from unittest.mock import patch, MagicMock
-from app.crocodile_analyzer_terminal import CrocodileAnalyzer
+from crocodile_analyzer_terminal import CrocodileAnalyzer
 
 
 @pytest.fixture
