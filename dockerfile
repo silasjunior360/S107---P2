@@ -1,8 +1,22 @@
-FROM python:3.11-slim
-WORKDIR /app
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install pytest pytest-cov pytest-html
-COPY . .
-ENV PYTHONPATH=/app
-CMD ["bash"]
+# Define nossa imagem base
+FROM jenkins/jenkins:lts
+
+# Define nosso usuario dentro do container
+USER root
+
+# Atualiza os pacotes do sistema
+RUN apt-get update
+
+# Instala Python e pip
+RUN apt-get install -y python3
+RUN apt-get install -y python3-pip
+RUN apt-get install -y python3-venv
+
+
+# Da permissão para o usuário jenkins
+RUN chown -R jenkins:jenkins /usr/local
+
+# Limpa arquivos baixados com apt-get
+RUN apt-get clean
+
+USER jenkins
