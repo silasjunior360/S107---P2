@@ -21,6 +21,13 @@ pipeline {
                 '''
             }
         }
+        stage('Test Setup') {
+    steps {
+        bat 'echo Diretório atual: %CD%'
+        bat 'docker --version'
+        bat 'docker ps -a'
+    }
+}
         
         stage('Setup') {
             steps {
