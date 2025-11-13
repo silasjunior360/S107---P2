@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label 'windows' // ou o label do seu node Windows
+    }
 
     triggers {
         pollSCM('H/5 * * * *')
@@ -15,9 +17,10 @@ pipeline {
         stage('Build'){
 
             steps {
-                echo 'Construindo o projeto...'
-                sh 'echo "Build concluído."'
                 
+                echo 'Construindo o projeto...'
+                bat 'echo "Build concluído."'
+
             }
         }
         stage('Setup') {
