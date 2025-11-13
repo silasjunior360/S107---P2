@@ -16,15 +16,18 @@ pipeline {
 
             steps {
                 
-                echo 'Construindo o projeto...'
-                bat 'echo "Build concluído."'
+                echo 'Verificando ambiente Python...'
+                bat '''
+                   docker-compose exec -T projeto_python python --version
+                   docker-compose exec -T projeto_python pip --version
+                '''
 
             }
         }
         stage('Setup') {
             steps {
                 echo 'Configurando ambiente...'
-                sh '''
+                bat '''
                    docker rm -f projeto_python || true
                    docker run -d --name projeto_python -v $PWD:/app -w /app python:3.9-slim tail -f /dev/null
                 '''
@@ -34,7 +37,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Instalando dependências...'
-                sh '''
+                bat '''
                    docker exec projeto_python pip install -r requirements.txt
                 '''
             }
@@ -43,7 +46,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo 'Executando testes...'
-                sh '''
+                bat '''
                    docker exec projeto_python pytest test_crocodile_analyzer.py -v --junitxml=test-results.xml --cov --cov-report=html --cov-report=term
                 '''
             }
@@ -52,7 +55,7 @@ pipeline {
         stage('Archive Results') {
             steps {
                 echo 'Arquivando resultados...'
-                sh '''
+                bat '''
                    docker cp projeto_python:/app/htmlcov ./htmlcov || true
                    docker cp projeto_python:/app/test-results.xml ./test-results.xml || true
                 '''
