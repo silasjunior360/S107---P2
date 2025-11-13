@@ -6,30 +6,28 @@ pipeline {
     }
 
     stages {
-        stage("POR FAVOR FUNCIONA"){
-            steps{
+        stage("POR FAVOR FUNCIONA") {
+            steps {
                 echo 'PFV'
             }
         }
     
-        stage('Build'){
-
+        stage('Build') {
             steps {
-                
                 echo 'Verificando ambiente Python...'
                 bat '''
-                   docker-compose exec -T projeto_python python --version
-                   docker-compose exec -T projeto_python pip --version
+                    docker-compose exec -T projeto_python python --version
+                    docker-compose exec -T projeto_python pip --version
                 '''
-
             }
         }
+        
         stage('Setup') {
             steps {
                 echo 'Configurando ambiente...'
                 bat '''
-                   docker rm -f projeto_python || true
-                   docker run -d --name projeto_python -v $PWD:/app -w /app python:3.9-slim tail -f /dev/null
+                    docker rm -f projeto_python || echo "Container não existia"
+                    docker run -d --name projeto_python -v %CD%:/app -w /app python:3.9-slim tail -f /dev/null
                 '''
             }
         }
@@ -38,7 +36,7 @@ pipeline {
             steps {
                 echo 'Instalando dependências...'
                 bat '''
-                   docker exec projeto_python pip install -r requirements.txt
+                    docker exec projeto_python pip install -r requirements.txt
                 '''
             }
         }
@@ -47,7 +45,7 @@ pipeline {
             steps {
                 echo 'Executando testes...'
                 bat '''
-                   docker exec projeto_python pytest test_crocodile_analyzer.py -v --junitxml=test-results.xml --cov --cov-report=html --cov-report=term
+                    docker exec projeto_python pytest test_crocodile_analyzer.py -v --junitxml=test-results.xml --cov --cov-report=html --cov-report=term
                 '''
             }
         }
@@ -56,8 +54,8 @@ pipeline {
             steps {
                 echo 'Arquivando resultados...'
                 bat '''
-                   docker cp projeto_python:/app/htmlcov ./htmlcov || true
-                   docker cp projeto_python:/app/test-results.xml ./test-results.xml || true
+                    docker cp projeto_python:/app/htmlcov .\\htmlcov || echo "htmlcov não encontrado"
+                    docker cp projeto_python:/app/test-results.xml .\\test-results.xml || echo "test-results.xml não encontrado"
                 '''
                 archiveArtifacts artifacts: 'htmlcov/**', allowEmptyArchive: true
                 junit 'test-results.xml'
