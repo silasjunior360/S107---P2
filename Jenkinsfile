@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        label 'windows' // ou o label do seu node Windows
-    }
+    agent any
 
     triggers {
         pollSCM('H/5 * * * *')
