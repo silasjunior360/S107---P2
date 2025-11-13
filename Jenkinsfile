@@ -32,10 +32,16 @@ pipeline {
         stage('Setup') {
             steps {
                 echo 'Configurando ambiente...'
-                bat '''
-                    docker rm -f projeto_python || echo "Container não existia"
-                    docker run -d --name projeto_python -v %CD%:/app -w /app python:3.9-slim tail -f /dev/null
-                '''
+                script {
+            // Remove container se existir
+            bat 'docker rm -f projeto_python'
+            
+            // Cria novo container
+            bat 'docker run -d --name projeto_python -v %CD%:/app -w /app python:3.9-slim tail -f /dev/null'
+            
+            // Aguarda container ficar pronto
+            bat 'timeout /t 10 /nobreak'
+        }
             }
         }
 
