@@ -6,50 +6,21 @@ pipeline {
     }
 
     stages {
-        stage("POR FAVOR FUNCIONA") {
-            steps {
-                echo 'PFV'
-            }
-        }
-    
-        stage('Build') {
-            steps {
-                echo 'Verificando ambiente Python...'
-                bat '''
-                    docker-compose exec -T projeto_python python --version
-                    docker-compose exec -T projeto_python pip --version
-                '''
-            }
-        }
-        stage('Test Setup') {
-    steps {
-        bat 'echo Diretório atual: %CD%'
-        bat 'docker --version'
-        bat 'docker ps -a'
-    }
-}
-        
         stage('Setup') {
             steps {
-                echo 'Configurando ambiente...'
-                script {
-            // Remove container se existir
-            bat 'docker rm -f projeto_python'
-            
-            // Cria novo container
-            bat 'docker run -d --name projeto_python -v %CD%:/app -w /app python:3.9-slim tail -f /dev/null'
-            
-            // Aguarda container ficar pronto
-            bat 'timeout /t 10 /nobreak'
-        }
+                echo 'Verificando ambiente Python...'
+                sh '''
+                   docker exec projeto_python python --version
+                   docker exec projeto_python pip --version
+                '''
             }
         }
 
         stage('Install Dependencies') {
             steps {
                 echo 'Instalando dependências...'
-                bat '''
-                    docker exec projeto_python pip install -r requirements.txt
+                sh '''
+                   docker exec projeto_python pip install -r requirements.txt
                 '''
             }
         }
@@ -57,8 +28,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo 'Executando testes...'
-                bat '''
-                    docker exec projeto_python pytest test_crocodile_analyzer.py -v --junitxml=test-results.xml --cov --cov-report=html --cov-report=term
+                sh '''
+                   docker exec projeto_python pytest test_crocodile_analyzer.py -v --junitxml=test-results.xml --cov --cov-report=html --cov-report=term
                 '''
             }
         }
@@ -66,9 +37,9 @@ pipeline {
         stage('Archive Results') {
             steps {
                 echo 'Arquivando resultados...'
-                bat '''
-                    docker cp projeto_python:/app/htmlcov .\\htmlcov || echo "htmlcov não encontrado"
-                    docker cp projeto_python:/app/test-results.xml .\\test-results.xml || echo "test-results.xml não encontrado"
+                sh '''
+                   docker cp projeto_python:/app/htmlcov ./htmlcov || true
+                   docker cp projeto_python:/app/test-results.xml ./test-results.xml || true
                 '''
                 archiveArtifacts artifacts: 'htmlcov/**', allowEmptyArchive: true
                 junit 'test-results.xml'
