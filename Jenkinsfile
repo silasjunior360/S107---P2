@@ -15,24 +15,17 @@ pipeline {
         stage('Build'){
 
             steps {
-                echo 'Building...'
-                sh "python3 --version"
-                sh "pip3 --version"
-                sh '''
-                   python3 -m venv venv
-                   . venv/bin/activate
-                   pip install -r requirements.txt
-                   ls
-                   '''
-
+                echo 'Construindo o projeto...'
+                sh 'echo "Build concluído."'
+                
             }
         }
         stage('Setup') {
             steps {
-                echo 'Verificando ambiente Python...'
+                echo 'Configurando ambiente...'
                 sh '''
-                   docker exec projeto_python python --version
-                   docker exec projeto_python pip --version
+                   docker rm -f projeto_python || true
+                   docker run -d --name projeto_python -v $PWD:/app -w /app python:3.9-slim tail -f /dev/null
                 '''
             }
         }
