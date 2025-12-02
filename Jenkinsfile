@@ -43,14 +43,23 @@ pipeline {
                 URL="$1"
                 echo "→ Testando $URL"
 
-                STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${BASE_URL}${URL}")
+                # Executa curl, captura status e resposta JSON
+                RESPONSE=$(curl -s -w "HTTPSTATUS:%{http_code}" "${BASE_URL}${URL}")
+
+                BODY=$(echo "$RESPONSE" | sed -e 's/HTTPSTATUS:.*//')
+                STATUS=$(echo "$RESPONSE" | tr -d '\\n' | sed -e 's/.*HTTPSTATUS://')
+
+                echo "Status: $STATUS"
+                echo "Resposta JSON:"
+                echo "$BODY"
 
                 if [ "$STATUS" -ne 200 ]; then
                     echo "Falha em $URL (HTTP $STATUS)"
-                    return 1
+                    exit 1
                 fi
 
                 echo "OK ($URL)"
+                echo ""
             }
 
             echo "Testando /health (PostgreSQL + Redis)"
@@ -60,14 +69,14 @@ pipeline {
             test_endpoint "/api/basic-info"
             test_endpoint "/api/species-count"
             test_endpoint "/api/size-statistics"
-            
             test_endpoint "/api/habitat-distribution"
             test_endpoint "/api/conservation-status"
 
-            echo "Todos os testes passaram!"
+            echo "Todos os testes passaram."
         '''
     }
 }
+
 
 
 
