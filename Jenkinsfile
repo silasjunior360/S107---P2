@@ -35,25 +35,28 @@ pipeline {
     steps {
         echo 'Testando API completa do WebApp...'
         sh '''
+            set -e
+
             BASE_URL="http://webapp:5000"
 
             test_endpoint() {
-                URL=$1
-                echo " → Testando $URL"
+                URL="$1"
+                echo "→ Testando $URL"
 
-                STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL$URL")
+                STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${BASE_URL}${URL}")
 
                 if [ "$STATUS" -ne 200 ]; then
-                    echo "❌ Falha em $URL (HTTP $STATUS)"
-                    exit 1
+                    echo "Falha em $URL (HTTP $STATUS)"
+                    return 1
                 fi
-                echo "✔ OK ($URL)"
+
+                echo "OK ($URL)"
             }
 
-            echo "🔍 Testando /health (PostgreSQL + Redis)"
+            echo "Testando /health (PostgreSQL + Redis)"
             test_endpoint "/health"
 
-            echo "🔍 Testando endpoints da API"
+            echo "Testando endpoints da API"
             test_endpoint "/api/basic-info"
             test_endpoint "/api/species-count"
             test_endpoint "/api/size-statistics"
@@ -61,10 +64,11 @@ pipeline {
             test_endpoint "/api/habitat-distribution"
             test_endpoint "/api/conservation-status"
 
-            echo "🎉 Todos os testes passaram!"
+            echo "Todos os testes passaram!"
         '''
     }
 }
+
 
 
         stage('Endpoints'){
