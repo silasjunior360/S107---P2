@@ -31,17 +31,41 @@ pipeline {
             }
         }
 
-        stage('Testar WebApp'){
+        stage('Testar WebApp') {
+    steps {
+        echo 'Testando API completa do WebApp...'
+        sh '''
+            BASE_URL="http://webapp:5000"
 
-            steps {
-                echo 'Testando conexão com WebApp, PostgreSQL e Redis...'
-                sh '''
-                   curl -f http://webapp:5000/health || exit 1
-                   echo " WebApp respondendo!"
-                '''
-                
+            test_endpoint() {
+                URL=$1
+                echo " → Testando $URL"
+
+                STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL$URL")
+
+                if [ "$STATUS" -ne 200 ]; then
+                    echo "❌ Falha em $URL (HTTP $STATUS)"
+                    exit 1
+                fi
+                echo "✔ OK ($URL)"
             }
-        }
+
+            echo "🔍 Testando /health (PostgreSQL + Redis)"
+            test_endpoint "/health"
+
+            echo "🔍 Testando endpoints da API"
+            test_endpoint "/api/basic-info"
+            test_endpoint "/api/species-count"
+            test_endpoint "/api/size-statistics"
+            test_endpoint "/api/weight-statistics"
+            test_endpoint "/api/habitat-distribution"
+            test_endpoint "/api/conservation-status"
+
+            echo "🎉 Todos os testes passaram!"
+        '''
+    }
+}
+
 
         stage('Endpoints'){
 
