@@ -1,1 +1,18 @@
 jenkins_compose
+__pycache__/
+
+# Arquivos de cobertura de testes
+.coverage
+coverage.xml
+htmlcov/
+
+*/target
+
+# Ambiente virtual Python
+venv/
+
+# Cache do pytest
+.pytest_cache/
+
+.env
+env/
