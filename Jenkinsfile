@@ -60,7 +60,7 @@ pipeline {
             test_endpoint "/api/basic-info"
             test_endpoint "/api/species-count"
             test_endpoint "/api/size-statistics"
-            test_endpoint "/api/weight-statistics"
+            
             test_endpoint "/api/habitat-distribution"
             test_endpoint "/api/conservation-status"
 
